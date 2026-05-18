@@ -20,8 +20,12 @@
 
     * { box-sizing: border-box; }
 
-    html, body {
+html {
       height: 100%;
+    }
+
+    body {
+      min-height: 100%; /* Позволяет фону расти вместе с контентом */
       margin: 0;
       font-family: "M PLUS Rounded 1c", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
       background: #f6f0e5;
@@ -40,10 +44,10 @@
   </pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/>\
 </svg>');
       background-blend-mode: normal;
-      background-size: cover;
+      background-size: auto; /* Клеточка будет бесконечно повторяться вниз, не искажаясь */
     }
 
-    /* Верхняя панель: прогресс и фильтры */
+    /* Навигационная панель: прогресс и фильтры */
     .top-bar {
       position: fixed;
       top: 12px;
@@ -94,9 +98,9 @@
     }
     .filter-btn:hover { transform: translateY(-1px); }
 
-    /* Контейнер стикеров: сетка или облако */
+    /* Контейнер стикеров */
     .board {
-      padding: 110px 20px 40px; /* место под верхнюю панель */
+      padding: 110px 20px 110px; /* 110px сверху, 20px по бокам, 110px снизу */
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
       gap: 22px;
@@ -110,7 +114,6 @@
       width: 100%;
       height: 170px;
       border-radius: 14px;
-      padding: 14px;
       position: relative;
       transform: rotate(var(--angle, 2deg));
       transform-style: preserve-3d;
@@ -124,31 +127,18 @@
     }
 
     /* Цвета пастельных наклеек */
-    .sticker.yellow    { background: #fff3c4; border-color: rgba(0,0,0,.05); }
-    .sticker.pink      { background: #ffd8e9; border-color: rgba(0,0,0,.05); }
-    .sticker.mint      { background: #d6f7e3; border-color: rgba(0,0,0,.05); }
-    .sticker.blue      { background: #d8e7ff; border-color: rgba(0,0,0,.05); }
-
-    /* Наклон и реалистичная тень применяются как CSS-свойства */
-    .sticker .content {
-      position: relative;
-      z-index: 2;
-      font-family: "Caveat", "Marck Script", cursive;
-      font-size: 22px;
-      line-height: 1.25;
-      color: #3b2f2f;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-    }
+    .sticker.yellow    { background: #fff3c4; }
+    .sticker.pink      { background: #ffd8e9; }
+    .sticker.mint      { background: #d6f7e3; }
+    .sticker.blue      { background: #d8e7ff; }
 
     /* Обратная сторона стикера (flip) */
     .sticker-inner {
       position: absolute;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%; 
+      height: 100%;
       transform-style: preserve-3d;
       transition: transform .6s cubic-bezier(.2,.8,.2,1);
     }
@@ -163,13 +153,19 @@
 
     .sticker .front, .sticker .back {
       position: absolute;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%; 
+      height: 100%;
       backface-visibility: hidden;
       border-radius: 12px;
+      padding: 14px; /* Внутренние отступы теперь здесь */
     }
 
     .sticker .front {
-      display: flex; align-items: center; justify-content: center;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
       font-size: 28px;
       font-family: "Marck Script", cursive;
       color: #5a3c2f;
@@ -177,9 +173,11 @@
 
     .sticker .back {
       transform: rotateY(180deg);
-      padding: 12px;
-      display: flex; flex-direction: column; gap: 6px;
-      align-items: center; justify-content: center;
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px;
+      align-items: center; 
+      justify-content: center;
       text-align: center;
       font-family: "Caveat", cursive;
       font-size: 18px;
@@ -187,49 +185,48 @@
     }
 
     .back .img {
-      width: 58px; height: 58px;
+      width: 58px; 
+      height: 58px;
       border-radius: 6px;
       background: #eee;
       display: inline-block;
-      object-fit: cover;
       border: 1px solid #ddd;
+      
+      /* Инструменты автоматической подгонки размера: */
+      background-size: cover;       /* Автоматически масштабирует фото, заполняя весь квадрат */
+      background-position: center;  /* Центрирует изображение, срезая лишние края по бокам */
+      background-repeat: no-repeat; /* Запрещает картинке размножаться дублями */
+      flex-shrink: 0;               /* КРИТИЧЕСКИ ВАЖНО: запрещает длинному тексту сжимать картинку */
     }
 
     /* Галочка для открытых стикеров */
-    .sticker.opened {
-      position: relative;
-      /* пометка открытости: галочка сверху слева */
-    }
     .sticker.opened::after {
       content: "✓";
       position: absolute;
-      top: 6px; left: 6px;
+      top: 6px; 
+      left: 6px;
       background: rgba(0,0,0,.08);
       color: #256a2c;
-      width: 22px; height: 22px;
-      display: grid; place-items: center;
+      width: 22px; 
+      height: 22px;
+      display: grid; 
+      place-items: center;
       border-radius: 6px;
       font-weight: 700;
       font-family: monospace;
       font-size: 14px;
+      z-index: 10;
     }
 
-    /* Скрытие/показ по тегам через небольшие эффекты */
+    /* Скрытие/показ по тегам */
     .hidden { display: none; }
     .fade-out { animation: fadeOut .4s forwards; }
     @keyframes fadeOut { to { opacity: 0; transform: scale(.96); } }
 
-    /* Подсказка/мелкая декоративная надпись на фоне */
-    .note {
-      position: absolute;
-      bottom: 8px; right: 8px;
-      font-size: 11px;
-      color: rgba(0,0,0,.35);
-    }
-
     @media (max-width: 700px) {
       .sticker { height: 150px; }
-      .sticker .content { font-size: 20px; }
+      .sticker .front { font-size: 24px; }
+      .sticker .back { font-size: 16px; }
     }
   </style>
 </head>
@@ -248,55 +245,121 @@
     <!-- Стикеры будут сгенерированы программно -->
   </main>
 
-  <script>
-    // 1) Моковый массив причин (5–10 элементов). Расширяй до 101 по аналогии.
-    const reasons = [
+<script>
+    // 1) Настоящий массив из 101 уникальной причины
+    const fullReasons = [
       { id: 1, text: "Ты делаешь каждый день ярче и теплее", img: "", tag: "романтика" },
       { id: 2, text: "Ты умеешь смеяться вместе со мной даже в серые дни", img: "", tag: "юмор" },
-      { id: 3, text: "Наши путешествия — это наши лучшие истории", img: "", tag: "наши_путешествия" },
-      { id: 4, text: "Ты поддерживаешь мечты и вдохновляешь расти", img: "", tag: "поддержка" },
+      { id: 3, text: "Наши путешествия — это наши лучшие истории", img: "", tag: "путешествия" },
+      { id: 4, text: "Ты поддерживаешь мои мечты и вдохновляешь расти", img: "", tag: "поддержка" },
       { id: 5, text: "Мы команда, которая держит друг друга за руку", img: "", tag: "отношения" },
       { id: 6, text: "Твоя забота и внимание к деталям", img: "", tag: "романтика" },
       { id: 7, text: "Ты делаешь дом уютнее каждый день", img: "", tag: "уют" },
-      { id: 8, text: "Наши маленькие привычки — наша сила", img: "", tag: "повседневность" },
+      { id: 8, text: "Наши маленькие привычки — наша сила", img: "", tag: "мелочи" },
       { id: 9, text: "С тобой легко быть собой", img: "", tag: "комфорт" },
-      { id: 10, text: "Спасибо за твой смех и улыбку", img: "", tag: "признательность" },
+      { id: 10, text: "Спасибо за твой смех и улыбку", img: "", tag: "юмор" },
+      { id: 11, text: "Твои объятия — лучшее успокоительное", img: "", tag: "комфорт" },
+      { id: 12, text: "Ты веришь в меня, даже когда я сомневаюсь", img: "", tag: "поддержка" },
+      { id: 13, text: "Мне нравится просто молчать с тобой", img: "", tag: "комфорт" },
+      { id: 14, text: "Твой голос мгновенно дарит мне покой", img: "", tag: "романтика" },
+      { id: 15, text: "То, как ты смотришь на меня", img: "", tag: "романтика" },
+      { id: 16, text: "Твои сонные утренние поцелуи", img: "", tag: "уют" },
+      { id: 17, text: "Ты помнишь, как я люблю пить чай или кофе", img: "", tag: "мелочи" },
+      { id: 18, text: "За общие шутки, которые понятны только нам двоим", img: "", tag: "юмор" },
+      { id: 19, text: "С тобой даже поход за продуктами — приключение", img: "", tag: "мелочи" },
+      { id: 20, text: "Ты умеешь поднять мне настроение одной смской", img: "", tag: "романтика" },
+      { id: 21, text: "За твою бесконечную доброту к миру", img: "", tag: "отношения" },
+      { id: 22, text: "Твои руки самые теплые на свете", img: "", tag: "комфорт" },
+      { id: 23, text: "С тобой я чувствую себя в полной безопасности", img: "", tag: "доверие" },
+      { id: 24, text: "Ты уважаешь мое личное пространство", img: "", tag: "доверие" },
+      { id: 25, text: "За то, как ты искренне радуешься моим успехам", img: "", tag: "поддержка" },
+      { id: 26, text: "Мы можем дурачиться как дети", img: "", tag: "юмор" },
+      { id: 27, text: "Твои советы всегда самые мудрые", img: "", tag: "поддержка" },
+      { id: 28, text: "Ты манишь меня к себе каждую секунду", img: "", tag: "романтика" },
+      { id: 29, text: "За совместные просмотры фильмов под одним пледом", img: "", tag: "уют" },
+      { id: 30, text: "Ты принимаешь все мои странности", img: "", tag: "комфорт" },
+      { id: 31, text: "Твой неповторимый запах, который я узнаю из тысячи", img: "", tag: "романтика" },
+      { id: 32, text: "За то, как мы делим последнюю вкусняшку", img: "", tag: "мелочи" },
+      { id: 33, text: "Рядом с тобой я становлюсь лучшей версией себя", img: "", tag: "поддержка" },
+      { id: 34, text: "Ты умеешь удивлять без повода", img: "", tag: "романтика" },
+      { id: 35, text: "За то, как ты искренне переживаешь, если я заболею", img: "", tag: "уют" },
+      { id: 36, text: "Наши долгие ночные разговоры обо всем на свете", img: "", tag: "отношения" },
+      { id: 37, text: "За твои забавные чихи и потягивания по утрам", img: "", tag: "юмор" },
+      { id: 38, text: "Ты умеешь прощать и не таить обиды", img: "", tag: "доверие" },
+      { id: 39, text: "За то, что в твоих планах на будущее всегда есть я", img: "", tag: "будущее" },
+      { id: 40, text: "С тобой безумно интересно спорить и обсуждать книги/фильмы", img: "", tag: "отношения" },
+      { id: 41, text: "Твоя улыбка способна растопить любой лед", img: "", tag: "романтика" },
+      { id: 42, text: "За то, как ты согреваешь мои замерзшие ноги или руки", img: "", tag: "уют" },
+      { id: 43, text: "Ты самый надежный человек, которого я знаю", img: "", tag: "доверие" },
+      { id: 44, text: "За наши спонтанные поездки куда глаза глядят", img: "images/44.jpg", tag: "путешествия" }, // Пример с фото
+      { id: 45, text: "Ты знаешь все мои трещинки и любишь их", img: "", tag: "комфорт" },
+      { id: 46, text: "За то, как ты мило хмуришься, когда засыпаешь", img: "", tag: "мелочи" },
+      { id: 47, text: "Твоя неиссякаемая энергия зажигает меня", img: "", tag: "поддержка" },
+      { id: 48, text: "Мы понимаем друг друга с одного только взгляда", img: "", tag: "отношения" },
+      { id: 49, text: "Ты готовишь (или выбираешь) самую вкусную еду для нас", img: "", tag: "уют" },
+      { id: 50, text: "За то, что ты — моя тихая гавань после тяжелого дня", img: "", tag: "комфорт" },
+      { id: 51, text: "Ты никогда не судишь меня за ошибки", img: "", tag: "доверие" },
+      { id: 52, text: "За твои щекотки и внезапные обнимашки со спины", img: "", tag: "юмор" },
+      { id: 53, text: "Твоя страсть и огонь, который не угасает", img: "", tag: "романтика" },
+      { id: 54, text: "За то, как круто мы смотримся вместе на фото", img: "", tag: "мелочи" },
+      { id: 55, text: "С тобой я не боюсь показаться слабым или глупым", img: "", tag: "комфорт" },
+      { id: 56, text: "За то, как ты защищаешь наши отношения", img: "", tag: "отношения" },
+      { id: 57, text: "Твое прекрасное чувство стиля и эстетики", img: "", tag: "мелочи" },
+      { id: 58, text: "За воспоминания о нашей самой первой встрече", img: "", tag: "романтика" },
+      { id: 59, text: "Ты умеешь находить плюсы в любой сложной ситуации", img: "", tag: "поддержка" },
+      { id: 60, text: "За то, как сладко засыпать под стук твоего сердца", img: "", tag: "уют" },
+      { id: 61, text: "Ты вдохновляешь меня учиться новому", img: "", tag: "поддержка" },
+      { id: 62, text: "За то, как ты делишься со мной своими мыслями и тайнами", img: "", tag: "доверие" },
+      { id: 63, text: "Твои комплименты заставляют меня сиять", img: "", tag: "романтика" },
+      { id: 64, text: "За песни, которые мы поем вместе вслух", img: "", tag: "юмор" },
+      { id: 65, text: "Ты помнишь даты всех наших важных событий", img: "", tag: "мелочи" },
+      { id: 66, text: "За ощущение, что мы знакомы всю жизнь", img: "", tag: "отношения" },
+      { id: 67, text: "Твоя честность, даже когда ее трудно сказать", img: "", tag: "доверие" },
+      { id: 68, text: "За то, как красиво светятся твои глаза на солнце", img: "", tag: "романтика" },
+      { id: 69, text: "Ты умеешь разрядить любую неловкую паузу", img: "", tag: "юмор" },
+      { id: 70, text: "За уютное молчание в машине или поезде", img: "", tag: "путешествия" },
+      { id: 71, text: "Ты даришь мне чувство нужности и уникальности", img: "", tag: "комфорт" },
+      { id: 72, text: "За то, как бережно ты относишься к моим вещам", img: "", tag: "мелочи" },
+      { id: 73, text: "С тобой мир вокруг кажется намного добрее", img: "", tag: "комфорт" },
+      { id: 74, text: "Ты умеешь слушать, а не просто кивать головой", img: "", tag: "отношения" },
+      { id: 75, text: "За твои милые сонные аудиосообщения", img: "", tag: "мелочи" },
+      { id: 76, text: "Ты — мой самый лучший и преданный друг", img: "", tag: "отношения" },
+      { id: 77, text: "За то, как ты искренне смеешься над моими глупыми шутками", img: "", tag: "юмор" },
+      { id: 78, text: "Твое терпение заслуживает отдельной награды", img: "", tag: "доверие" },
+      { id: 79, text: "За наши грандиозные планы, которые мы обязательно выполним", img: "", tag: "будущее" },
+      { id: 80, text: "Ты умеешь превратить обычный ужин в праздник", img: "", tag: "уют" },
+      { id: 81, text: "Твои прикосновения вызывают мурашки по коже", img: "", tag: "романтика" },
+      { id: 82, text: "За то, что ты не пытаешься меня переделать", img: "", tag: "комфорт" },
+      { id: 83, text: "Ты — первая и последняя мысль в моем дне", img: "", tag: "романтика" },
+      { id: 84, text: "За билеты, брони и карту наших общих мест", img: "", tag: "путешествия" },
+      { id: 85, text: "Ты заставляешь меня верить в чудеса", img: "", tag: "поддержка" },
+      { id: 86, text: "За то, как тепло ты отзываешься обо мне при друзьях", img: "", tag: "отношения" },
+      { id: 87, text: "Твои поцелуи в лоб или нос — это чистая нежность", img: "", tag: "романтика" },
+      { id: 88, text: "За то, как мы вместе выбираем декор или мелочи для дома", img: "", tag: "уют" },
+      { id: 89, text: "Ты всегда на моей стороне перед всем миром", img: "", tag: "доверие" },
+      { id: 90, text: "С тобой я хочу встретить старость", img: "", tag: "будущее" },
+      { id: 91, text: "Ты замечаешь во мне то, чего не видят другие", img: "", tag: "мелочи" },
+      { id: 92, text: "За твою невероятную внутреннюю силу", img: "", tag: "поддержка" },
+      { id: 93, text: "Мы можем дурачиться и строить рожицы в зеркало", img: "", tag: "юмор" },
+      { id: 94, text: "За наши общие плейлисты и треки «для двоих»", img: "", tag: "мелочи" },
+      { id: 95, text: "Ты умеешь успокоить меня без единого слова", img: "", tag: "комфорт" },
+      { id: 96, text: "За то, как ты мило путаешь слова, когда торопишься", img: "", tag: "юмор" },
+      { id: 97, text: "Ты делаешь мою жизнь наполненной и осмысленной", img: "", tag: "отношения" },
+      { id: 98, text: "За то, что с каждым днем я люблю тебя еще сильнее", img: "", tag: "романтика" },
+      { id: 99, text: "Ты — мой самый главный и ценный подарок судьбы", img: "", tag: "романтика" },
+      { id: 100, text: "За то, что ты просто есть в этой огромной вселенной", img: "", tag: "отношения" },
+      { id: 101, text: "Потому что настоящая любовь не требует причин!", img: "", tag: "романтика" }
     ];
-
-    // Расширяем до желаемого количества (пример: 101)
-    // Чтобы быстро протестировать, можно временно оставить 10 элементов.
-    // Ниже пример, как можно автоматически продублировать/расширить массив до N:
-    const TARGET_COUNT = 101;
-    function expandReasons(base, target) {
-      const arr = base.slice();
-      let i = 0;
-      while (arr.length < target) {
-        const baseItem = base[i % base.length];
-        // Создаем новое копирование с слегка измененным id, текст можно оставить оригинальным или добавить номер
-        const copy = {
-          id: arr.length + 1,
-          text: (baseItem.text) + "",
-          img: baseItem.img,
-          tag: baseItem.tag
-        };
-        arr.push(copy);
-        i++;
-      }
-      return arr;
-    }
-    const fullReasons = expandReasons(reasons, TARGET_COUNT);
 
     // 2) Навигационная фильтрация по тегам
     const allTags = Array.from(new Set(fullReasons.map(r => r.tag))).filter(t => t);
-    // Список тегов для панели фильтров (покажем как кнопки)
     const filterBar = document.getElementById('filterBar');
     const board = document.getElementById('board');
 
-    // Прогресс: считуем сколько открыто (из localStorage)
+    // Прогресс из localStorage
     const STORAGE_KEY = 'papers_opened';
     const openedSet = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 
-    // Состояние фильтра: выбранный тег или null
     let activeTag = null;
 
     function saveOpened() {
@@ -305,43 +368,40 @@
 
     // 3) Рендеринг стикеров
     function createSticker(item) {
-      // случайный угол наклона в диапазоне -6..6 deg
       const angle = (Math.random() * 12) - 6;
       const colorClasses = ['sticker', 'yellow', 'pink', 'mint', 'blue'];
-      // выбор цвета на основе id для разнообразия
       const colorClass = colorClasses[(item.id * 7) % colorClasses.length];
+      
       const sticker = document.createElement('div');
       sticker.className = colorClass + ' sticker';
       sticker.style.setProperty('--angle', angle + 'deg');
-      // тень — можно менять для открытых
       sticker.style.setProperty('--shadow', openedSet.has(item.id) ? '0 8px 20px rgba(0,0,0,.15)' : '0 8px 18px rgba(0,0,0,.12)');
 
-      // внутренняя структура flip
       const inner = document.createElement('div');
       inner.className = 'sticker-inner';
 
-      // лица
       const front = document.createElement('div');
       front.className = 'front';
       front.textContent = '#' + item.id;
 
       const back = document.createElement('div');
       back.className = 'back';
+      
       const imgEl = document.createElement('div');
       imgEl.className = 'img';
-      // если есть реальная картинка, можно задать через backgroundImage
-      if (item.img) {
-        imgEl.style.backgroundImage = `url(${item.img})`;
-        imgEl.style.backgroundSize = 'cover';
-      } else {
-        // заглушка: цветной фон
-        imgEl.style.background = '#eee';
-        imgEl.style.width = '58px';
-        imgEl.style.height = '58px';
-      }
+      
+      // Динамически собираем путь: images/1.jpg, images/2.jpg и т.д.
+      // Используем расширение в нижнем регистре (.jpg)
+      const imagePath = `images/${item.id}.jpg`; 
+      
+      imgEl.style.backgroundImage = `url(${imagePath})`;
+      imgEl.style.backgroundSize = 'cover';
+      imgEl.style.backgroundPosition = 'center';
+      
       const t = document.createElement('div');
       t.textContent = item.text;
       t.style.fontWeight = '600';
+      
       const small = document.createElement('div');
       small.textContent = 'история #' + item.id;
       small.style.fontSize = '12px';
@@ -355,40 +415,32 @@
       inner.appendChild(back);
       sticker.appendChild(inner);
 
-      // кликовая логика: переворот
       let flipped = false;
       sticker.addEventListener('click', () => {
         flipped = !flipped;
         inner.style.transform = 'rotateY(' + (flipped ? 180 : 0) + 'deg)';
-        sticker.style.transform += ''; // держим базовый наклон
-        // если открыто впервые, пометим как открыто
+        
         if (flipped && !openedSet.has(item.id)) {
           openedSet.add(item.id);
           sticker.classList.add('opened');
-          // сохраняем в localStorage
           saveOpened();
-          // обновим прогресс
           updateProgress();
         }
-        // визуальная отметка открытости
         if (openedSet.has(item.id)) {
           sticker.classList.add('opened');
         }
       });
 
-      // начальная отметка открытости
       if (openedSet.has(item.id)) {
         sticker.classList.add('opened');
-        // моментально показать на обратной стороне, чтобы не путать
         inner.style.transform = 'rotateY(180deg)';
         flipped = true;
       }
 
-      // возвращаем элемент
       return sticker;
     }
 
-    // 4) Обновление прогресса на панели
+    // 4) Обновление прогресса
     function updateProgress() {
       const openedCount = openedSet.size;
       const total = fullReasons.length;
@@ -399,18 +451,16 @@
     // 5) Функция рендера с учётом фильтра
     function renderBoard() {
       board.innerHTML = '';
-      // фильтрация: если активный тег, показываем только такие
       const toShow = fullReasons.filter(r => {
         if (!activeTag) return true;
         return r.tag === activeTag;
       });
 
-      // если активирован фильтр, можно добавить эффект fade-out старых элементов
       toShow.forEach(it => {
         const el = createSticker(it);
         board.appendChild(el);
       });
-      // если ничего не найдено, показать подсказку
+      
       if (toShow.length === 0) {
         const msg = document.createElement('div');
         msg.textContent = 'Нет стикеров с выбранным тегом. Попробуйте другой тег.';
@@ -423,7 +473,6 @@
     // 6) Инициализация тег-панели
     function renderFilters() {
       filterBar.innerHTML = '';
-      // кнопка "Все"
       const btnAll = document.createElement('button');
       btnAll.className = 'filter-btn' + (activeTag === null ? ' active' : '');
       btnAll.textContent = 'Все';
@@ -448,18 +497,14 @@
     }
 
     // 7) Запуск
-    // подготовим список тегов
-    // (используем полностью расширенный массив fullReasons)
     allTags.length = 0;
     fullReasons.forEach(r => {
       if (r.tag && !allTags.includes(r.tag)) allTags.push(r.tag);
     });
 
-    // initial render
     updateProgress();
     renderFilters();
     renderBoard();
-
   </script>
 </body>
 </html>
