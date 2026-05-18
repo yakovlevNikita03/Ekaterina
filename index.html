@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>101 причина любви — Бумажная доска</title>
 
   <!-- Подключение Google Fonts: рукописный кириллический шрифт -->
@@ -20,7 +20,7 @@
 
     * { box-sizing: border-box; }
 
-html {
+    html {
       height: 100%;
     }
 
@@ -30,6 +30,7 @@ html {
       font-family: "M PLUS Rounded 1c", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
       background: #f6f0e5;
       color: var(--ink);
+      -webkit-tap-highlight-color: transparent; /* Убирает синюю рамку при тапе на мобильных */
     }
 
     /* Фон: текстура бумаги (tone-down) */
@@ -50,61 +51,74 @@ html {
     /* Навигационная панель: прогресс и фильтры */
     .top-bar {
       position: fixed;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.9);
-      box-shadow: 0 6px 20px rgba(0,0,0,.08);
-      backdrop-filter: saturate(1.2) blur(2px);
-      border: 1px solid rgba(0,0,0,.05);
+      gap: 8px;
+      padding: 12px 8px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 4px 15px rgba(0,0,0,.05);
+      backdrop-filter: saturate(1.2) blur(8px);
+      -webkit-backdrop-filter: saturate(1.2) blur(8px);
+      border-bottom: 1px solid rgba(0,0,0,.05);
     }
 
     .badge {
       font-family: "Marck Script", cursive;
-      font-size: 18px;
+      font-size: 19px;
       color: #6b4c2f;
+      text-align: center;
     }
 
     .filter-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      padding: 6px;
+      padding: 4px;
       border-radius: 999px;
       background: #fff;
       border: 1px solid #e5d9c4;
+      max-width: 100%;
+      overflow-x: auto; /* Включаем горизонтальный скролл тегов на мобилках */
+      scrollbar-width: none; /* Прячем дефолтный скроллбар в Firefox */
+      -webkit-overflow-scrolling: touch; /* Плавный инерционный скролл на iOS */
+    }
+    
+    .filter-bar::-webkit-scrollbar {
+      display: none; /* Прячем дефолтный скроллбар в Chrome/Safari */
     }
 
     .filter-btn {
       border: none;
       background: transparent;
-      padding: 8px 12px;
+      padding: 6px 12px;
       border-radius: 999px;
       cursor: pointer;
       font-family: inherit;
       color: #5b4334;
       font-weight: 600;
-      transition: transform .2s ease;
+      font-size: 14px;
+      white-space: nowrap; /* Запрещаем перенос текста кнопок на новую строку */
+      transition: background-color .2s, transform .1s;
     }
     .filter-btn.active {
       background: #f0e3d1;
-      box-shadow: inset 0 0 0 2px #e9d2b0;
+      box-shadow: inset 0 0 0 1px #e9d2b0;
     }
     .filter-btn:hover { transform: translateY(-1px); }
+    .filter-btn:active { transform: translateY(0); }
 
     /* Контейнер стикеров */
     .board {
-      padding: 110px 20px 110px; /* 110px сверху, 20px по бокам, 110px снизу */
+      padding: 120px 16px 40px; /* Отступ сверху увеличен, чтобы шапка не перекрывала карточки */
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 22px;
-      width: min(1200px, 92%);
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      width: min(1200px, 100%);
       margin: 0 auto;
       perspective: 1000px; /* для 3D flip */
     }
@@ -112,7 +126,7 @@ html {
     /* Стикер: карточка-бумажка */
     .sticker {
       width: 100%;
-      height: 170px;
+      height: 165px;
       border-radius: 14px;
       position: relative;
       transform: rotate(var(--angle, 2deg));
@@ -159,7 +173,7 @@ html {
       height: 100%;
       backface-visibility: hidden;
       border-radius: 12px;
-      padding: 14px; /* Внутренние отступы теперь здесь */
+      padding: 12px; 
     }
 
     .sticker .front {
@@ -180,13 +194,14 @@ html {
       justify-content: center;
       text-align: center;
       font-family: "Caveat", cursive;
-      font-size: 18px;
+      font-size: 19px;
+      line-height: 1.2;
       color: #3b2f2f;
     }
 
     .back .img {
-      width: 58px; 
-      height: 58px;
+      width: 54px; 
+      height: 54px;
       border-radius: 6px;
       background: #eee;
       display: inline-block;
@@ -205,16 +220,16 @@ html {
       position: absolute;
       top: 6px; 
       left: 6px;
-      background: rgba(0,0,0,.08);
+      background: rgba(0,0,0,.06);
       color: #256a2c;
-      width: 22px; 
-      height: 22px;
+      width: 20px; 
+      height: 20px;
       display: grid; 
       place-items: center;
       border-radius: 6px;
       font-weight: 700;
       font-family: monospace;
-      font-size: 14px;
+      font-size: 13px;
       z-index: 10;
     }
 
@@ -223,10 +238,42 @@ html {
     .fade-out { animation: fadeOut .4s forwards; }
     @keyframes fadeOut { to { opacity: 0; transform: scale(.96); } }
 
-    @media (max-width: 700px) {
-      .sticker { height: 150px; }
-      .sticker .front { font-size: 24px; }
-      .sticker .back { font-size: 16px; }
+    /* Медиа-запросы для мобильных устройств */
+    @media (max-width: 600px) {
+      .board {
+        grid-template-columns: repeat(2, 1fr); /* Ровно две аккуратные колонки на смартфонах */
+        gap: 12px;
+        padding-top: 115px;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+      .sticker { 
+        height: 145px; 
+      }
+      .sticker .front { 
+        font-size: 24px; 
+      }
+      .sticker .back { 
+        font-size: 17px; 
+        padding: 8px;
+        gap: 4px;
+      }
+      .back .img {
+        width: 46px;
+        height: 46px;
+      }
+      .sticker.opened::after {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+      }
+    }
+
+    /* Оптимизация для совсем маленьких экранов (до 360px) */
+    @media (max-width: 360px) {
+      .board {
+        grid-template-columns: 1fr; /* В одну колонку, если экран экстремально узкий */
+      }
     }
   </style>
 </head>
@@ -291,7 +338,7 @@ html {
       { id: 41, text: "Твоя улыбка способна растопить любой лед", img: "", tag: "романтика" },
       { id: 42, text: "За то, как ты согреваешь мои замерзшие ноги или руки", img: "", tag: "уют" },
       { id: 43, text: "Ты самый надежный человек, которого я знаю", img: "", tag: "доверие" },
-      { id: 44, text: "За наши спонтанные поездки куда глаза глядят", img: "images/44.jpg", tag: "путешествия" }, // Пример с фото
+      { id: 44, text: "За наши спонтанные поездки куда глаза глядят", img: "images/44.jpg", tag: "путешествия" },
       { id: 45, text: "Ты знаешь все мои трещинки и любишь их", img: "", tag: "комфорт" },
       { id: 46, text: "За то, как ты мило хмуришься, когда засыпаешь", img: "", tag: "мелочи" },
       { id: 47, text: "Твоя неиссякаемая энергия зажигает меня", img: "", tag: "поддержка" },
@@ -331,7 +378,7 @@ html {
       { id: 81, text: "Твои прикосновения вызывают мурашки по коже", img: "", tag: "романтика" },
       { id: 82, text: "За то, что ты не пытаешься меня переделать", img: "", tag: "комфорт" },
       { id: 83, text: "Ты — первая и последняя мысль в моем дне", img: "", tag: "романтика" },
-      { id: 84, text: "За билеты, брони и карту наших общих мест", img: "", tag: "путешествия" },
+      { id: 84, text: "За билеты, брони и карту наших общих мест", img: "images/84.jpg", tag: "путешествия" },
       { id: 85, text: "Ты заставляешь меня верить в чудеса", img: "", tag: "поддержка" },
       { id: 86, text: "За то, как тепло ты отзываешься обо мне при друзьях", img: "", tag: "отношения" },
       { id: 87, text: "Твои поцелуи в лоб или нос — это чистая нежность", img: "", tag: "романтика" },
@@ -391,7 +438,6 @@ html {
       imgEl.className = 'img';
       
       // Динамически собираем путь: images/1.jpg, images/2.jpg и т.д.
-      // Используем расширение в нижнем регистре (.jpg)
       const imagePath = `images/${item.id}.jpg`; 
       
       imgEl.style.backgroundImage = `url(${imagePath})`;
